@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  quality-analytics:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      - HAPI_FHIR_BASE_URL=http://hapi-fhir:8080/fhir
+    depends_on:
+      - hapi-fhir
+    networks:
+      - fhir-network
+
+  hapi-fhir:
+    # Your existing HAPI FHIR service configuration
+    networks:
+      - fhir-network
+
+networks:
+  fhir-network:
+    driver: bridge
