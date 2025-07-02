@@ -1,0 +1,46 @@
+[
+    {
+        "_id": "5b2a3c5e-a3dd-4fd4-bc41-be4555ffc0f5",
+        "colId": "history",
+        "containerId": "",
+        "name": "http://localhost:3001/api/measures/CMS138FHIRPreventiveTobaccoCessation/evaluate \\ -H \"Content-Type: application/json\" \\ -d '{\"patientIds\": [\"minimal-test\"]}'",
+        "url": "http://localhost:3001/api/measures/CMS138FHIRPreventiveTobaccoCessation/evaluate",
+        "method": "POST",
+        "sortNum": 0,
+        "created": "2025-06-29T21:26:03.197Z",
+        "modified": "2025-06-29T21:43:29.154Z",
+        "headers": [
+            {
+                "name": "Content-Type",
+                "value": "application/json"
+            }
+        ],
+        "body": {
+            "type": "json",
+            "raw": "{\n  \"patientIds\": [\n    \"minimal-test\"\n  ],\n  \"measurementPeriodStart\": \"2025-01-01\",\n  \"measurementPeriodEnd\": \"2025-12-31\"\n}",
+            "form": []
+        }
+    },
+    {
+        "_id": "f293a2e2-38b2-4e1f-96ad-e869d696d6a9",
+        "colId": "history",
+        "containerId": "",
+        "name": "http://localhost:3001/api/measures/CMS138FHIRPreventiveTobaccoCessation/evaluate \\ -H \"Content-Type: application/json\" \\ -d '{\"patientIds\": [\"minimal-test\"]}' Copy",
+        "url": "http://localhost:3001/api/measures/CMS138FHIRPreventiveTobaccoCessation/gaps",
+        "method": "POST",
+        "sortNum": 0,
+        "created": "2025-06-29T21:26:03.197Z",
+        "modified": "2025-06-29T23:21:52.905Z",
+        "headers": [
+            {
+                "name": "Content-Type",
+                "value": "application/json"
+            }
+        ],
+        "body": {
+            "type": "json",
+            "raw": "{\n  \"patientIds\": [\n    \"minimal-test\"\n  ],\n  \"measurementPeriodStart\": \"2025-01-01\",\n  \"measurementPeriodEnd\": \"2025-12-31\"\n}",
+            "form": []
+        }
+    }
+]

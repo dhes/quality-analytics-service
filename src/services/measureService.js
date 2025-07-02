@@ -7,39 +7,50 @@ class MeasureService {
     this.cache = new NodeCache({ stdTTL: 600 });
   }
 
-  async calculateMeasureResults(measureBundle, patientBundles, options = {}) {
-    const defaultOptions = {
-      calculateHTML: false,
-      calculateClauseCoverage: false,
-      calculateSDEs: true,
-      buildStatementLevelHTML: false,
-      verboseCalculationResults: true
+async calculateMeasureResults(measureBundle, patientBundles, options = {}) {
+  const defaultOptions = {
+    calculateHTML: false,
+    calculateClauseCoverage: true,
+    calculateSDEs: true,
+    buildStatementLevelHTML: false,
+    verboseCalculationResults: true,
+    enableDebugOutput: true,
+    includeClauseResults: true,
+    calculateCoverageDetails: true,
+		calculateClauseUncoverage: true,
+  };
+
+  const calculationOptions = { ...defaultOptions, ...options };
+
+  try {
+    // Log inputs for debugging
+    console.log('Calculation options:', JSON.stringify(calculationOptions, null, 2));
+    console.log('Measure bundle type:', measureBundle?.resourceType);
+    console.log('Patient bundles count:', patientBundles?.length);
+    console.log('First patient bundle type:', patientBundles?.[0]?.resourceType);
+    
+    const { results, groupClauseCoverageHTML } = await Calculator.calculate(
+      measureBundle,
+      patientBundles,
+      calculationOptions
+    );
+
+    return {
+      results,
+      coverageHTML: groupClauseCoverageHTML,
+      metadata: {
+        calculatedAt: new Date().toISOString(),
+        patientCount: patientBundles.length,
+        options: calculationOptions
+      }
     };
-
-    const calculationOptions = { ...defaultOptions, ...options };
-
-    try {
-      const { results, groupClauseCoverageHTML } = await Calculator.calculate(
-        measureBundle,
-        patientBundles,
-        calculationOptions
-      );
-
-      return {
-        results,
-        coverageHTML: groupClauseCoverageHTML,
-        metadata: {
-          calculatedAt: new Date().toISOString(),
-          patientCount: patientBundles.length,
-          options: calculationOptions
-        }
-      };
-    } catch (error) {
-      console.error('Measure calculation error:', error);
-      throw new Error(`Measure calculation failed: ${error.message}`);
-    }
+  } catch (error) {
+    console.error('Measure calculation error:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Calculation options that failed:', calculationOptions);
+    throw new Error(`Measure calculation failed: ${error.message}`);
   }
-
+}
   async calculateGapsInCare(measureBundle, patientBundles, options = {}) {
     try {
       const { results } = await Calculator.calculateGapsInCare(

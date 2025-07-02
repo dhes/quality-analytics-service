@@ -46,6 +46,9 @@ class MeasureController {
         ),
       ]);
 
+      // Extract and decode ELM from the bundle we already have
+      const elmDefinition = this.extractElmFromBundle(measureBundle);
+
       // Calculate using fqm-execution
       const results = await this.measureService.calculateMeasureResults(
         measureBundle,
@@ -57,7 +60,7 @@ class MeasureController {
         }
       );
 
-      res.json(results);
+      res.json(...results, elmDefinition);
     } catch (error) {
       console.error("Measure evaluation error:", error);
       res.status(500).json({
@@ -67,7 +70,6 @@ class MeasureController {
     }
   }
 
-  // Update other methods similarly
   async getGapsInCare(req, res) {
     try {
       const { measureId } = req.params;
@@ -85,10 +87,20 @@ class MeasureController {
         ),
       ]);
 
+      // Add the same calculation options that fixed /evaluate
+      const calculationOptions = {
+        measurementPeriodStart,
+        measurementPeriodEnd,
+        calculateHTML: false,
+        calculateClauseCoverage: false,
+        buildStatementLevelHTML: false,
+        // Add any other options you used for evaluateMeasure
+      };
+
       const gapsResults = await this.measureService.calculateGapsInCare(
         measureBundle,
         patientBundles,
-        { measurementPeriodStart, measurementPeriodEnd }
+        calculationOptions // Use the expanded options instead of just the period
       );
 
       res.json(gapsResults);
