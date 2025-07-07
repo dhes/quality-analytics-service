@@ -139,3 +139,6 @@ Desktop.ini
 # Test artifacts
 test-results/
 test-output/
+
+# scratch files
+scratch/

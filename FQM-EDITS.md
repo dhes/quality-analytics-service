@@ -1,0 +1,2 @@
+In /Users/danheslinga/quality-analytics-service/node_modules/fqm-execution/build/calculation/HTMLBuilder.js at line 159 changed `a.annotation[0].s` to `a.annotation?.[0]?.s || {}`
+Same patch at line 176. 

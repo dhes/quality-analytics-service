@@ -242,9 +242,9 @@ class FHIRClient {
       //   "✅ Complete bundle exported to complete-measure-bundle.json"
       // );
       // In fetchMeasureBundle, right before return:
-      console.log("=== COMPLETE BUNDLE START ===");
-      console.log(JSON.stringify(bundle, null, 2));
-      console.log("=== COMPLETE BUNDLE END ===");
+      // console.log("=== COMPLETE BUNDLE START ===");
+      // console.log(JSON.stringify(bundle, null, 2));
+      // console.log("=== COMPLETE BUNDLE END ===");
 
       return bundle;
     } catch (error) {

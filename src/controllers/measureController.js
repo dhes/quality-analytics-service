@@ -24,36 +24,38 @@ class MeasureController {
   extractElmFromBundle(measureBundle) {
     try {
       // Find all Library resources in the bundle
-      const libraries = measureBundle.entry?.filter(entry => 
-        entry.resource?.resourceType === 'Library'
-      ) || [];
-      
+      const libraries =
+        measureBundle.entry?.filter(
+          (entry) => entry.resource?.resourceType === "Library"
+        ) || [];
+
       console.log(`Found ${libraries.length} libraries in measure bundle`);
-      
+
       // Look for the main library (usually matches the measure name)
       // For CMS138, look for library with name containing 'CMS138' or 'PreventiveTobaccoCessation'
-      const mainLibrary = libraries.find(entry => {
+      const mainLibrary = libraries.find((entry) => {
         const library = entry.resource;
-        return library.name?.includes('CMS138') || 
-               library.name?.includes('PreventiveTobaccoCessation') ||
-               library.name?.includes('Preventive') ||
-               library.title?.includes('CMS138');
+        return (
+          library.name?.includes("CMS138") ||
+          library.name?.includes("PreventiveTobaccoCessation") ||
+          library.name?.includes("Preventive") ||
+          library.title?.includes("CMS138")
+        );
       });
-      
+
       if (!mainLibrary) {
-        console.warn('Main library not found, using first library');
+        console.warn("Main library not found, using first library");
         const firstLibrary = libraries[0];
         if (!firstLibrary) {
-          throw new Error('No libraries found in measure bundle');
+          throw new Error("No libraries found in measure bundle");
         }
         return this.extractElmFromLibrary(firstLibrary.resource);
       }
-      
+
       console.log(`Using library: ${mainLibrary.resource.name}`);
       return this.extractElmFromLibrary(mainLibrary.resource);
-      
     } catch (error) {
-      console.error('Error extracting ELM from bundle:', error);
+      console.error("Error extracting ELM from bundle:", error);
       return null; // Return null so enhanced guidance can fall back gracefully
     }
   }
@@ -62,29 +64,30 @@ class MeasureController {
   extractElmFromLibrary(library) {
     try {
       // Find the ELM content
-      const elmContent = library.content?.find(content => 
-        content.contentType === 'application/elm+json'
+      const elmContent = library.content?.find(
+        (content) => content.contentType === "application/elm+json"
       );
-      
+
       if (!elmContent) {
-        console.warn('No ELM content found in library', library.name);
+        console.warn("No ELM content found in library", library.name);
         return null;
       }
-      
+
       if (!elmContent.data) {
-        console.warn('ELM content has no data', library.name);
+        console.warn("ELM content has no data", library.name);
         return null;
       }
-      
+
       // Base64 decode and parse the ELM JSON
-      console.log('Decoding ELM content...');
+      console.log("Decoding ELM content...");
       const elmJson = JSON.parse(atob(elmContent.data));
-      
-      console.log(`Successfully extracted ELM for library: ${elmJson.library?.identifier?.id}`);
+
+      console.log(
+        `Successfully extracted ELM for library: ${elmJson.library?.identifier?.id}`
+      );
       return elmJson;
-      
     } catch (error) {
-      console.error('Error extracting ELM from library:', error);
+      console.error("Error extracting ELM from library:", error);
       return null;
     }
   }
@@ -98,6 +101,12 @@ class MeasureController {
         measurementPeriodEnd,
         options = {},
       } = req.body;
+
+      // ADD THIS DEBUG LOG:
+      console.log("🔍 Measurement Period Debug:", {
+        fromRequest: { measurementPeriodStart, measurementPeriodEnd },
+        patientIds: patientIds,
+      });
 
       console.log("Request body:", req.body);
       console.log("Extracted patientIds:", patientIds);
@@ -132,7 +141,7 @@ class MeasureController {
       // Include ELM definition in response for enhanced guidance
       res.json({
         ...results,
-        elmDefinition // Add the decoded ELM
+        elmDefinition, // Add the decoded ELM
       });
     } catch (error) {
       console.error("Measure evaluation error:", error);
