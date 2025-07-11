@@ -1,0 +1,15 @@
+# local id of IP
+
+jq '.results[].detailedResults[].statementResults[] | select(.statementName == "Initial Population") | .localId' scratch/results.json
+
+# Here's the jq expression to find the final value where localId equals "308"
+
+jq '.results[].detailedResults[].statementResults[] | select(.localId == "308") | .final' scratch/results.json
+
+# Here's the jq expression to find the index of the element in the def array where localId equals "308":
+
+jq '.elmDefinition.library.statements.def | to_entries[] | select(.value.localId == "308") | .key' scratch/results.json
+
+# Here's the jq expression to list all unique values of elmDefinition.library.statements.def.expression.type:
+
+jq '[.elmDefinition.library.statements.def[].expression.type] | unique' scratch/results.json

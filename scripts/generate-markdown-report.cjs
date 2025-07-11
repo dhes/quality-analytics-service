@@ -141,7 +141,10 @@ function generateStatementAnalysis(detailedResult, elmDefinitions) {
 *No relevant statements found*`;
   }
 
-  const statementSections = relevantStatements.map(stmt => {
+  // Sort statements by population-flow order
+  const sortedStatements = sortStatementsByPopulationFlow(relevantStatements, detailedResult.populationResults);
+
+  const statementSections = sortedStatements.map(stmt => {
     const resultIcon = getResultIcon(stmt.final);
     const relatedClauses = getRelatedClauses(stmt, detailedResult.clauseResults);
     const clauseBreakdown = generateDetailedClauseBreakdown(relatedClauses, stmt, elmDefinitions);
@@ -298,6 +301,90 @@ function getPopulationDisplayName(type) {
     'measure-population': 'Measure Population'
   };
   return displayNames[type] || type;
+}
+
+/**
+ * Sort statements by population-flow order for logical presentation
+ */
+function sortStatementsByPopulationFlow(statements, populationResults) {
+  // Create lookup of population statement names
+  const populationStatements = new Set();
+  if (populationResults) {
+    populationResults.forEach(pop => {
+      if (pop.criteriaExpression) {
+        populationStatements.add(pop.criteriaExpression);
+      }
+    });
+  }
+
+  // Define population flow order
+  const populationOrder = [
+    'initial-population',
+    'denominator', 
+    'denominator-exclusion',
+    'denominator-exception',
+    'numerator',
+    'numerator-exclusion', 
+    'measure-population',
+    'measure-population-exclusion',
+    'measure-observation'
+  ];
+
+  // Create mapping of statement name to population type
+  const statementToPopType = new Map();
+  if (populationResults) {
+    populationResults.forEach(pop => {
+      if (pop.criteriaExpression && pop.populationType) {
+        statementToPopType.set(pop.criteriaExpression, pop.populationType);
+      }
+    });
+  }
+
+  // Categorize statements
+  const populationStmts = [];
+  const helperStmts = [];
+  const sdeStmts = [];
+
+  statements.forEach(stmt => {
+    if (populationStatements.has(stmt.statementName)) {
+      populationStmts.push(stmt);
+    } else if (stmt.statementName.toLowerCase().includes('sde ') || 
+               stmt.statementName.toLowerCase().startsWith('sde ')) {
+      sdeStmts.push(stmt);
+    } else {
+      helperStmts.push(stmt);
+    }
+  });
+
+  // Sort population statements by flow order
+  populationStmts.sort((a, b) => {
+    const aType = statementToPopType.get(a.statementName);
+    const bType = statementToPopType.get(b.statementName);
+    
+    const aIndex = populationOrder.indexOf(aType);
+    const bIndex = populationOrder.indexOf(bType);
+    
+    // If both found in order, use that order
+    if (aIndex >= 0 && bIndex >= 0) {
+      return aIndex - bIndex;
+    }
+    
+    // If only one found, prioritize it
+    if (aIndex >= 0) return -1;
+    if (bIndex >= 0) return 1;
+    
+    // If neither found, alphabetical
+    return a.statementName.localeCompare(b.statementName);
+  });
+
+  // Sort helper statements alphabetically
+  helperStmts.sort((a, b) => a.statementName.localeCompare(b.statementName));
+
+  // Sort SDE statements alphabetically  
+  sdeStmts.sort((a, b) => a.statementName.localeCompare(b.statementName));
+
+  // Combine in population-flow order
+  return [...populationStmts, ...helperStmts, ...sdeStmts];
 }
 
 function getResultIcon(finalResult) {
@@ -524,5 +611,6 @@ module.exports = {
   generateCoverageDetails,
   generateDetailedClauseBreakdown,
   extractCqlTextForClause,
-  extractFullCqlStatement
+  extractFullCqlStatement,
+  sortStatementsByPopulationFlow
 };
